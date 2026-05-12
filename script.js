@@ -133,6 +133,7 @@ async function loadPrayers(lat, lon) {
   });
   document.getElementById("next-prayer-name").textContent = "جاري التحميل…";
   document.getElementById("countdown-display").textContent = "--:--:--";
+  currentNextId = null;
 
   try {
     let url;
