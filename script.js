@@ -1,3 +1,7 @@
+/* ═══════════════════════════════════════════════════════════
+   مواقيت الصلاة — صدقة جارية عن روح يوسف محمد عبدالله
+   ═══════════════════════════════════════════════════════════ */
+
 /* ═══════════ STATE ═══════════ */
 const PRAYERS = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"];
 const AR = {
@@ -9,6 +13,15 @@ const AR = {
   isha: "العشاء",
 };
 const AZAN_URL = "https://www.islamcan.com/audio/adhan/azan1.mp3";
+
+/* إعدادات الإشعارات — يتم تحميلها من localStorage */
+const NOTIF_CONFIG = {
+  before15: true,
+  before5: true,
+  onTime: true,
+  afterDua: true,
+  fajrReminder: true,
+};
 
 let prayerMap = {},
   currentNextId = null,
@@ -24,11 +37,74 @@ let firedToday = new Set(),
 let tasbeehCount = 0,
   tasbeehTotal = 0,
   currentPhrase = "سبحان الله";
+let fajrReminderFired = false;
 
 /* ═══════════ INIT ═══════════ */
+loadSettings();
 setDates();
 loadPrayers();
-if (window.matchMedia("(prefers-color-scheme:dark)").matches) toggleDark();
+registerServiceWorker();
+if (
+  window.matchMedia("(prefers-color-scheme:dark)").matches &&
+  !localStorage.getItem("darkOn")
+)
+  toggleDark();
+
+/* ═══════════ SERVICE WORKER ═══════════ */
+function registerServiceWorker() {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }
+}
+
+/* ═══════════ SETTINGS PERSISTENCE ═══════════ */
+function loadSettings() {
+  /* Dark mode */
+  const savedDark = localStorage.getItem("darkOn");
+  if (savedDark === "true") {
+    darkOn = false;
+    toggleDark();
+  }
+
+  /* Sound */
+  if (localStorage.getItem("soundOn") === "true") {
+    soundOn = false; /* toggleSound يعكسه */
+    const btn = document.getElementById("sound-btn");
+    const top = document.getElementById("sound-top-btn");
+    soundOn = true;
+    if (btn) {
+      btn.classList.add("on");
+      btn.querySelector(".feat-icon").textContent = "🔊";
+    }
+    if (top) top.textContent = "🔊";
+  }
+
+  /* NOTIF_CONFIG */
+  const savedConfig = localStorage.getItem("notifConfig");
+  if (savedConfig) {
+    try {
+      const parsed = JSON.parse(savedConfig);
+      Object.assign(NOTIF_CONFIG, parsed);
+    } catch (e) {}
+  }
+
+  /* Notifications — يطلب الإذن تلقائياً لو كان مفعّلاً */
+  if (localStorage.getItem("notifOn") === "true") {
+    if (Notification.permission === "granted") {
+      notifOn = true;
+      setNotifUI(true);
+    } else {
+      localStorage.removeItem("notifOn");
+    }
+  }
+}
+
+function saveSettings() {
+  localStorage.setItem("notifOn", notifOn);
+  localStorage.setItem("soundOn", soundOn);
+  localStorage.setItem("darkOn", darkOn);
+  localStorage.setItem("notifConfig", JSON.stringify(NOTIF_CONFIG));
+}
 
 /* ═══════════ DATES ═══════════ */
 function setDates() {
@@ -85,6 +161,7 @@ async function loadPrayers(lat, lon) {
       document.getElementById(id).textContent = fmt12(raw);
     });
     firedToday = new Set();
+    fajrReminderFired = false;
     startCountdown();
     startChecker();
   } catch (e) {
@@ -152,37 +229,166 @@ function pad(n) {
   return String(n).padStart(2, "0");
 }
 
-/* ═══════════ CHECKER ═══════════ */
+/* ═══════════ CHECKER (المحسّن) ═══════════ */
 function startChecker() {
   if (checkInt) clearInterval(checkInt);
-  checkInt = setInterval(() => {
-    if (!Object.keys(prayerMap).length) return;
-    const now = new Date();
-    const h = now.getHours(),
-      m = now.getMinutes();
-    for (const id of PRAYERS) {
-      if (firedToday.has(id)) continue;
-      const raw = (prayerMap[id] || "").split(" ")[0].split(":");
-      const ph = parseInt(raw[0], 10),
-        pm = parseInt(raw[1], 10);
-      if (ph === h && pm === m) {
-        firedToday.add(id);
-        onPrayerTime(id);
-      }
-    }
-  }, 10000);
+  checkPrayerAlerts();
+  checkInt = setInterval(checkPrayerAlerts, 15000);
 }
 
-function onPrayerTime(id) {
+function checkPrayerAlerts() {
+  if (!Object.keys(prayerMap).length) return;
+
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  const nowM = h * 60 + m;
+
+  /* ── تذكير الفجر الساعة 11 مساءً ── */
+  if (
+    NOTIF_CONFIG.fajrReminder &&
+    !fajrReminderFired &&
+    h === 23 &&
+    m === 0 &&
+    prayerMap.fajr
+  ) {
+    fajrReminderFired = true;
+    const fajrTime = fmt12(prayerMap.fajr);
+    fireNotif("fajr", "fajrReminder", fajrTime);
+  }
+
+  for (const id of PRAYERS) {
+    const raw = (prayerMap[id] || "").split(" ")[0].split(":");
+    const pH = parseInt(raw[0], 10);
+    const pM = parseInt(raw[1], 10);
+    if (isNaN(pH) || isNaN(pM)) continue;
+    const prayerMinutes = pH * 60 + pM;
+
+    /* قبل 15 دقيقة */
+    if (NOTIF_CONFIG.before15) {
+      const key = id + "_before15";
+      if (!firedToday.has(key) && nowM === prayerMinutes - 15) {
+        firedToday.add(key);
+        fireNotif(id, "before15");
+      }
+    }
+
+    /* قبل 5 دقائق */
+    if (NOTIF_CONFIG.before5) {
+      const key = id + "_before5";
+      if (!firedToday.has(key) && nowM === prayerMinutes - 5) {
+        firedToday.add(key);
+        fireNotif(id, "before5");
+      }
+    }
+
+    /* وقت الصلاة */
+    if (NOTIF_CONFIG.onTime) {
+      const key = id + "_ontime";
+      if (!firedToday.has(key) && pH === h && pM === m) {
+        firedToday.add(key);
+        fireNotif(id, "ontime");
+        /* تذكير الدعاء بعد 5 دقائق */
+        if (NOTIF_CONFIG.afterDua) {
+          setTimeout(
+            () => {
+              const duaKey = id + "_afterdua";
+              if (!firedToday.has(duaKey)) {
+                firedToday.add(duaKey);
+                fireNotif(id, "afterdua");
+              }
+            },
+            5 * 60 * 1000,
+          );
+        }
+      }
+    }
+  }
+}
+
+/* ═══════════ FIRE NOTIF ═══════════ */
+function fireNotif(id, type, extra) {
   const name = AR[id];
+
+  const configs = {
+    before15: {
+      title: `⏰ ${name} بعد ربع ساعة`,
+      body: `استعد لصلاة ${name} — تبقّى 15 دقيقة 🕌`,
+      toast: `⏰ ${name} بعد 15 دقيقة — استعد`,
+      sound: false,
+    },
+    before5: {
+      title: `🔔 ${name} بعد 5 دقائق`,
+      body: `حان وقت التهيؤ لصلاة ${name} 🤍`,
+      toast: `🔔 ${name} بعد 5 دقائق`,
+      sound: false,
+    },
+    ontime: {
+      title: `🕌 حان وقت صلاة ${name}`,
+      body: `حي على الصلاة — لا تنسَ الدعاء ليوسف بعد الصلاة 🤍`,
+      toast: `🕌 حان وقت صلاة ${name} — ادعُ ليوسف 🤍`,
+      sound: true,
+    },
+    afterdua: {
+      title: `🤲 تذكير: ادعُ ليوسف`,
+      body: `مضى 5 دقائق على صلاة ${name} — لا تنسَ الدعاء ليوسف محمد عبدالله 🌿`,
+      toast: `🤲 لا تنسَ الدعاء ليوسف بعد صلاة ${name}`,
+      sound: false,
+    },
+    fajrReminder: {
+      title: `🌙 فجر الغد الساعة ${extra}`,
+      body: `اضبط منبهك لصلاة الفجر غداً — ولا تنسَ الدعاء ليوسف 🤍`,
+      toast: `🌙 فجر الغد ${extra} — اضبط منبهك`,
+      sound: false,
+    },
+  };
+
+  const c = configs[type];
+  if (!c) return;
+
+  showToast(c.toast);
+
   if (notifOn && Notification.permission === "granted") {
-    new Notification(`🕌 حان وقت ${name}`, {
-      body: `لا تنسَ الدعاء ليوسف بعد الصلاة 🤍`,
-      icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕌</text></svg>",
+    new Notification(c.title, {
+      body: c.body,
+      icon: getNotifIcon(type),
+      tag: id + "_" + type,
+      renotify: false,
     });
   }
-  if (soundOn) playAzan(name);
-  showToast(`حان وقت صلاة ${name} — ادعُ ليوسف 🤍`);
+
+  if (c.sound && soundOn) playAzan(name);
+}
+
+function getNotifIcon(type) {
+  const map = {
+    before15:
+      "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏰</text></svg>",
+    before5:
+      "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>",
+    ontime:
+      "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕌</text></svg>",
+    afterdua:
+      "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤲</text></svg>",
+    fajrReminder:
+      "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>",
+  };
+  return map[type] || map.ontime;
+}
+
+/* ═══════════ NOTIF SETTINGS PANEL ═══════════ */
+function toggleNotifPanel() {
+  const panel = document.getElementById("notif-panel");
+  if (!panel) return;
+  const isOpen = panel.classList.contains("open");
+  panel.classList.toggle("open", !isOpen);
+}
+
+function toggleNotifOption(key) {
+  NOTIF_CONFIG[key] = !NOTIF_CONFIG[key];
+  const el = document.getElementById("nopt-" + key);
+  if (el) el.classList.toggle("checked", NOTIF_CONFIG[key]);
+  saveSettings();
 }
 
 /* ═══════════ AZAN ═══════════ */
@@ -236,8 +442,8 @@ function closeAzanBar() {
 
 function toggleSound() {
   soundOn = !soundOn;
-  const btn = document.getElementById("sound-btn"),
-    top = document.getElementById("sound-top-btn");
+  const btn = document.getElementById("sound-btn");
+  const top = document.getElementById("sound-top-btn");
   if (soundOn) {
     btn.classList.add("on");
     btn.querySelector(".feat-icon").textContent = "🔊";
@@ -251,6 +457,7 @@ function toggleSound() {
     closeAzanBar();
     showToast("صوت الأذان متوقف");
   }
+  saveSettings();
 }
 
 /* ═══════════ NOTIFICATIONS ═══════════ */
@@ -259,6 +466,7 @@ async function toggleNotifications() {
     notifOn = false;
     setNotifUI(false);
     showToast("تم إيقاف الإشعارات");
+    saveSettings();
     return;
   }
   if (!("Notification" in window)) {
@@ -273,10 +481,12 @@ async function toggleNotifications() {
     new Notification("مواقيت الصلاة 🕌", {
       body: "سيتم تذكيرك بالدعاء ليوسف عند كل صلاة 🤍",
     });
+    saveSettings();
   } else {
     showToast("تعذّر الحصول على الإذن");
   }
 }
+
 function setNotifUI(on) {
   document.getElementById("notif-btn").classList.toggle("on", on);
   document.getElementById("notif-top-btn").textContent = on ? "🔔" : "🔕";
@@ -323,6 +533,7 @@ function toggleDark() {
     darkOn ? "dark" : "light",
   );
   document.getElementById("dark-toggle").textContent = darkOn ? "☀️" : "🌙";
+  saveSettings();
 }
 
 /* ═══════════ TASBEEH ═══════════ */
@@ -375,6 +586,7 @@ function fmt12(raw) {
   h = h % 12 || 12;
   return `${h}:${m} ${suf}`;
 }
+
 function showToast(msg) {
   const el = document.getElementById("toast");
   el.textContent = msg;

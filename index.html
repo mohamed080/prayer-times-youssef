@@ -4,14 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مواقيت الصلاة — صدقة جارية عن روح يوسف</title>
 
+    <!-- SEO -->
+    <title>مواقيت الصلاة — صدقة جارية عن روح يوسف</title>
+    <meta name="description" content="موقع مواقيت الصلاة اليومية — صدقة جارية عن روح يوسف محمد عبدالله.">
+    <meta name="keywords" content="مواقيت الصلاة, الفجر, الظهر, العصر, المغرب, العشاء, أذان">
+    <meta name="author" content="مواقيت الصلاة - يوسف">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://prayer-times-youssef.vercel.app/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://prayer-times-youssef.vercel.app/">
+    <meta property="og:title" content="مواقيت الصلاة — صدقة جارية">
+    <meta property="og:description" content="اعرف مواقيت الصلاة اليومية بسهولة">
+    
+    <!-- favicon (icon في التاب) -->
+    <link rel="icon" type="image/png" href="./assets/icon.png">
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap"
-        rel="stylesheet">
-    <!-- Style -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -30,21 +46,21 @@
     <!-- ══ HERO ══ -->
     <section class="hero">
         <div class="top-bar">
-            <button class="top-btn" id="dark-toggle" onclick="toggleDark()">🌙</button>
+            <button class="top-btn" id="dark-toggle" title="الوضع الليلي" onclick="toggleDark()">🌙</button>
             <div class="top-btn-group">
-                <button class="top-btn" id="notif-top-btn" onclick="toggleNotifications()">🔕</button>
-                <button class="top-btn" id="sound-top-btn" onclick="toggleSound()">🔇</button>
+                <button class="top-btn" id="notif-top-btn" title="الإشعارات" onclick="toggleNotifications()">🔕</button>
+                <button class="top-btn" id="sound-top-btn" title="صوت الأذان" onclick="toggleSound()">🔇</button>
             </div>
         </div>
-        <span class="hero-icon">🕌</span>
+        <span class="hero-icon" role="img" aria-label="مسجد">🕌</span>
         <h1>مواقيت الصلاة</h1>
         <p class="tagline">اعرف مواعيد الصلاة اليومية بسهولة</p>
-        <div class="gold-divider"><span></span><i>✦</i><span></span></div>
+        <div class="gold-divider"><span></span><i aria-hidden="true">✦</i><span></span></div>
         <div class="date-row">
             <div class="date-badge" id="gregorian-date">جاري التحميل…</div>
             <div class="date-badge" id="hijri-date"></div>
         </div>
-        <div class="mosque-strip"></div>
+        <div class="mosque-strip" aria-hidden="true"></div>
     </section>
 
     <!-- ══ MEMORIAL CARD ══ -->
@@ -55,14 +71,13 @@
                 <span>🌿</span>
                 <span style="color:var(--text-mid)">انتقل إلى رحمة الله</span>
                 <span>12 مايو 2025</span>
-                <!-- <span>عمره 18 عاماً</span> -->
                 <span>🌿</span>
             </div>
-            <div class="memorial-quran">
+            <div class="memorial-quran" lang="ar">
                 ﴿ إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ ﴾
                 <div class="memorial-quran-ref">سورة البقرة — الآية 156</div>
             </div>
-            <button class="memorial-dua-btn" onclick="openDua()">
+            <button class="memorial-dua-btn" onclick="openDua()" aria-label="فتح دعاء للمتوفى">
                 🤲 &nbsp; ادعُ لروح يوسف
             </button>
         </div>
@@ -75,17 +90,18 @@
                 <div class="countdown-label">الصلاة القادمة</div>
                 <div class="countdown-prayer-name" id="next-prayer-name">جاري التحميل…</div>
             </div>
-            <div class="countdown-timer" id="countdown-display">--:--:--</div>
+            <div class="countdown-timer" id="countdown-display" aria-live="polite" aria-label="العداد التنازلي">--:--:--
+            </div>
         </div>
     </div>
 
     <!-- ══ CONTROLS ══ -->
     <div class="controls-row">
         <div class="selector-card">
-            <div class="selector-icon">📍</div>
+            <div class="selector-icon" aria-hidden="true">📍</div>
             <div style="flex:1">
                 <div class="selector-label">اختر مدينتك</div>
-                <select class="city-select" id="city-select" onchange="loadPrayers()">
+                <select class="city-select" id="city-select" onchange="loadPrayers()" aria-label="اختر المدينة">
                     <optgroup label="مصر">
                         <option value="Cairo" data-country="EG">القاهرة</option>
                         <option value="Alexandria" data-country="EG">الإسكندرية</option>
@@ -127,99 +143,161 @@
                     </optgroup>
                 </select>
             </div>
-            <div class="select-arrow">⌄</div>
+            <div class="select-arrow" aria-hidden="true">⌄</div>
         </div>
-        <button class="gps-btn" id="gps-btn" onclick="detectLocation()">
-            <span class="gps-icon">🌐</span>
+
+        <button class="gps-btn" id="gps-btn" onclick="detectLocation()" aria-label="تحديد الموقع تلقائياً">
+            <span class="gps-icon" aria-hidden="true">🌐</span>
             <span id="gps-label">موقعي تلقائياً</span>
         </button>
+
         <div class="feature-btns">
-            <button class="feat-btn" id="notif-btn" onclick="toggleNotifications()">
-                <span class="feat-icon">🔔</span><span>إشعارات</span>
+            <button class="feat-btn" id="notif-btn" onclick="toggleNotifications()" aria-pressed="false">
+                <span class="feat-icon" aria-hidden="true">🔔</span><span>إشعارات</span>
             </button>
-            <button class="feat-btn" id="sound-btn" onclick="toggleSound()">
-                <span class="feat-icon">🔇</span><span>أذان</span>
+            <!-- زر إعدادات الإشعارات -->
+            <button class="feat-btn notif-settings-btn" onclick="toggleNotifPanel()" aria-label="إعدادات الإشعارات"
+                title="إعدادات الإشعارات">
+                <span class="feat-icon" aria-hidden="true">⚙️</span><span>التنبيهات</span>
+            </button>
+            <button class="feat-btn" id="sound-btn" onclick="toggleSound()" aria-pressed="false">
+                <span class="feat-icon" aria-hidden="true">🔇</span><span>أذان</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ══ NOTIF SETTINGS PANEL ══ -->
+    <div class="notif-panel" id="notif-panel" role="region" aria-label="إعدادات التنبيهات">
+        <div class="notif-panel-title">⚙️ اختر متى تتلقى التنبيهات</div>
+        <div class="notif-options">
+            <button class="notif-opt checked" id="nopt-before15" onclick="toggleNotifOption('before15')" role="checkbox"
+                aria-checked="true">
+                <span class="nopt-icon">⏰</span>
+                <div class="nopt-text">
+                    <div class="nopt-label">قبل الصلاة بـ 15 دقيقة</div>
+                    <div class="nopt-sub">تنبيه مبكر للاستعداد</div>
+                </div>
+                <span class="nopt-check">✓</span>
+            </button>
+            <button class="notif-opt checked" id="nopt-before5" onclick="toggleNotifOption('before5')" role="checkbox"
+                aria-checked="true">
+                <span class="nopt-icon">🔔</span>
+                <div class="nopt-text">
+                    <div class="nopt-label">قبل الصلاة بـ 5 دقائق</div>
+                    <div class="nopt-sub">تذكير قريب من الوقت</div>
+                </div>
+                <span class="nopt-check">✓</span>
+            </button>
+            <button class="notif-opt checked" id="nopt-onTime" onclick="toggleNotifOption('onTime')" role="checkbox"
+                aria-checked="true">
+                <span class="nopt-icon">🕌</span>
+                <div class="nopt-text">
+                    <div class="nopt-label">عند دخول وقت الصلاة</div>
+                    <div class="nopt-sub">مع صوت الأذان إن كان مفعّلاً</div>
+                </div>
+                <span class="nopt-check">✓</span>
+            </button>
+            <button class="notif-opt checked" id="nopt-afterDua" onclick="toggleNotifOption('afterDua')" role="checkbox"
+                aria-checked="true">
+                <span class="nopt-icon">🤲</span>
+                <div class="nopt-text">
+                    <div class="nopt-label">تذكير الدعاء ليوسف</div>
+                    <div class="nopt-sub">بعد 5 دقائق من كل صلاة</div>
+                </div>
+                <span class="nopt-check">✓</span>
+            </button>
+            <button class="notif-opt checked" id="nopt-fajrReminder" onclick="toggleNotifOption('fajrReminder')"
+                role="checkbox" aria-checked="true">
+                <span class="nopt-icon">🌙</span>
+                <div class="nopt-text">
+                    <div class="nopt-label">تذكير الفجر قبل النوم</div>
+                    <div class="nopt-sub">الساعة 11 مساءً — اضبط منبهك</div>
+                </div>
+                <span class="nopt-check">✓</span>
             </button>
         </div>
     </div>
 
     <!-- ══ PRAYER CARDS ══ -->
-    <div class="cards-section">
-        <div class="prayer-card" id="card-fajr">
-            <div class="card-icon-wrap">🌙</div>
-            <div class="card-info">
-                <div class="prayer-name">الفجر <span class="next-badge">التالية</span></div>
-                <div class="prayer-time-val" id="fajr"><span class="skeleton"></span></div>
-                <div class="card-countdown" id="cc-fajr"></div>
-                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
-            </div>
+    <main>
+        <div class="cards-section">
+            <article class="prayer-card" id="card-fajr">
+                <div class="card-icon-wrap" aria-hidden="true">🌙</div>
+                <div class="card-info">
+                    <div class="prayer-name">الفجر <span class="next-badge">التالية</span></div>
+                    <div class="prayer-time-val" id="fajr"><span class="skeleton"></span></div>
+                    <div class="card-countdown" id="cc-fajr"></div>
+                    <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+                </div>
+            </article>
+            <article class="prayer-card" id="card-sunrise">
+                <div class="card-icon-wrap" aria-hidden="true">🌅</div>
+                <div class="card-info">
+                    <div class="prayer-name">الشروق <span class="next-badge">التالية</span></div>
+                    <div class="prayer-time-val" id="sunrise"><span class="skeleton"></span></div>
+                    <div class="card-countdown" id="cc-sunrise"></div>
+                    <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+                </div>
+            </article>
+            <article class="prayer-card" id="card-dhuhr">
+                <div class="card-icon-wrap" aria-hidden="true">☀️</div>
+                <div class="card-info">
+                    <div class="prayer-name">الظهر <span class="next-badge">التالية</span></div>
+                    <div class="prayer-time-val" id="dhuhr"><span class="skeleton"></span></div>
+                    <div class="card-countdown" id="cc-dhuhr"></div>
+                    <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+                </div>
+            </article>
+            <article class="prayer-card" id="card-asr">
+                <div class="card-icon-wrap" aria-hidden="true">🌤️</div>
+                <div class="card-info">
+                    <div class="prayer-name">العصر <span class="next-badge">التالية</span></div>
+                    <div class="prayer-time-val" id="asr"><span class="skeleton"></span></div>
+                    <div class="card-countdown" id="cc-asr"></div>
+                    <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+                </div>
+            </article>
+            <article class="prayer-card" id="card-maghrib">
+                <div class="card-icon-wrap" aria-hidden="true">🌇</div>
+                <div class="card-info">
+                    <div class="prayer-name">المغرب <span class="next-badge">التالية</span></div>
+                    <div class="prayer-time-val" id="maghrib"><span class="skeleton"></span></div>
+                    <div class="card-countdown" id="cc-maghrib"></div>
+                    <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+                </div>
+            </article>
+            <article class="prayer-card" id="card-isha">
+                <div class="card-icon-wrap" aria-hidden="true">🌌</div>
+                <div class="card-info">
+                    <div class="prayer-name">العشاء <span class="next-badge">التالية</span></div>
+                    <div class="prayer-time-val" id="isha"><span class="skeleton"></span></div>
+                    <div class="card-countdown" id="cc-isha"></div>
+                    <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+                </div>
+            </article>
         </div>
-        <div class="prayer-card" id="card-sunrise">
-            <div class="card-icon-wrap">🌅</div>
-            <div class="card-info">
-                <div class="prayer-name">الشروق <span class="next-badge">التالية</span></div>
-                <div class="prayer-time-val" id="sunrise"><span class="skeleton"></span></div>
-                <div class="card-countdown" id="cc-sunrise"></div>
-                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
-            </div>
-        </div>
-        <div class="prayer-card" id="card-dhuhr">
-            <div class="card-icon-wrap">☀️</div>
-            <div class="card-info">
-                <div class="prayer-name">الظهر <span class="next-badge">التالية</span></div>
-                <div class="prayer-time-val" id="dhuhr"><span class="skeleton"></span></div>
-                <div class="card-countdown" id="cc-dhuhr"></div>
-                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
-            </div>
-        </div>
-        <div class="prayer-card" id="card-asr">
-            <div class="card-icon-wrap">🌤️</div>
-            <div class="card-info">
-                <div class="prayer-name">العصر <span class="next-badge">التالية</span></div>
-                <div class="prayer-time-val" id="asr"><span class="skeleton"></span></div>
-                <div class="card-countdown" id="cc-asr"></div>
-                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
-            </div>
-        </div>
-        <div class="prayer-card" id="card-maghrib">
-            <div class="card-icon-wrap">🌇</div>
-            <div class="card-info">
-                <div class="prayer-name">المغرب <span class="next-badge">التالية</span></div>
-                <div class="prayer-time-val" id="maghrib"><span class="skeleton"></span></div>
-                <div class="card-countdown" id="cc-maghrib"></div>
-                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
-            </div>
-        </div>
-        <div class="prayer-card" id="card-isha">
-            <div class="card-icon-wrap">🌌</div>
-            <div class="card-info">
-                <div class="prayer-name">العشاء <span class="next-badge">التالية</span></div>
-                <div class="prayer-time-val" id="isha"><span class="skeleton"></span></div>
-                <div class="card-countdown" id="cc-isha"></div>
-                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
-            </div>
-        </div>
-    </div>
+    </main>
 
     <!-- ══ TASBEEH ══ -->
     <div class="tasbeeh-wrapper">
         <div class="tasbeeh-card">
             <div class="tasbeeh-title">📿 سبحة إلكترونية — أهدِ الثواب ليوسف</div>
-            <div class="tasbeeh-phrase-row">
+            <div class="tasbeeh-phrase-row" role="group" aria-label="اختر الذكر">
                 <button class="phrase-btn active" onclick="setPhrase(this,'سبحان الله')">سبحان الله</button>
                 <button class="phrase-btn" onclick="setPhrase(this,'الحمد لله')">الحمد لله</button>
                 <button class="phrase-btn" onclick="setPhrase(this,'الله أكبر')">الله أكبر</button>
                 <button class="phrase-btn" onclick="setPhrase(this,'لا إله إلا الله')">لا إله إلا الله</button>
                 <button class="phrase-btn" onclick="setPhrase(this,'أستغفر الله')">أستغفر الله</button>
             </div>
-            <div class="tasbeeh-phrase-display" id="tasbeeh-phrase">سبحان الله</div>
+            <div class="tasbeeh-phrase-display" id="tasbeeh-phrase" lang="ar">سبحان الله</div>
             <div class="tasbeeh-counter-wrap">
-                <div class="tasbeeh-circle" onclick="incrementTasbeeh()">
+                <div class="tasbeeh-circle" onclick="incrementTasbeeh()" role="button" tabindex="0"
+                    aria-label="اضغط للتسبيح" onkeypress="if(event.key==='Enter')incrementTasbeeh()">
                     <div class="tasbeeh-num" id="tasbeeh-count">0</div>
                     <div class="tasbeeh-tap">اضغط</div>
                 </div>
             </div>
-            <div class="tasbeeh-total" id="tasbeeh-total">المجموع الكلي: 0</div>
+            <div class="tasbeeh-total" id="tasbeeh-total" aria-live="polite">المجموع الكلي: 0</div>
             <br>
             <button class="tasbeeh-reset" onclick="resetTasbeeh()">↺ إعادة تعيين</button>
         </div>
@@ -228,7 +306,7 @@
     <!-- ══ DEDICATION ══ -->
     <div class="dedication-section">
         <div class="dedication-card">
-            <span class="dedication-star">🌙</span>
+            <span class="dedication-star" aria-hidden="true">🌙</span>
             <div class="dedication-text">
                 إلى روح <span class="dedication-name">يوسف محمد عبدالله</span><br>
                 الشاب الذي رحل في ريعان شبابه عن عمر 18 عاماً<br>
@@ -237,7 +315,7 @@
                     وكل من استفاد به صدقةً جاريةً تبلغه نورها في قبره
                 </span>
             </div>
-            <div class="dedication-sub">
+            <div class="dedication-sub" lang="ar">
                 ﴿ وَلَا تَحْسَبَنَّ الَّذِينَ قُتِلُوا فِي سَبِيلِ اللَّهِ أَمْوَاتًا ۚ بَلْ أَحْيَاءٌ عِندَ رَبِّهِمْ
                 يُرْزَقُونَ ﴾
             </div>
@@ -245,17 +323,19 @@
     </div>
 
     <footer>
-        صُنع بـ 🤍 إهداءً لروح يوسف محمد عبدالله<br>
-        البيانات من Aladhan API • كل دعاء تدعو به له صدقةٌ جارية
+        <p>صُنع بـ 🤍 إهداءً لروح يوسف محمد عبدالله</p>
+        <p>البيانات من <a href="https://aladhan.com" target="_blank" rel="noopener" style="color:inherit">Aladhan
+                API</a> • كل دعاء تدعو به له صدقةٌ جارية</p>
     </footer>
 
     <!-- ══ DUA POPUP ══ -->
-    <div class="popup-overlay" id="dua-popup" onclick="closeDua(event)">
+    <div class="popup-overlay" id="dua-popup" role="dialog" aria-modal="true" aria-label="دعاء للمتوفى"
+        onclick="closeDua(event)">
         <div class="popup-box">
-            <button class="popup-close" onclick="closeDuaBtn()">✕</button>
-            <span class="popup-icon">🤲</span>
+            <button class="popup-close" onclick="closeDuaBtn()" aria-label="إغلاق">✕</button>
+            <span class="popup-icon" aria-hidden="true">🤲</span>
             <div class="popup-title">دعاء للمتوفى</div>
-            <div class="popup-dua">
+            <div class="popup-dua" lang="ar">
                 اللهم اغفر ليوسف وارحمه وعافِه واعفُ عنه،<br>
                 وأكرم نُزُله ووسّع مُدخله،<br>
                 واغسله بالماء والثلج والبَرَد،<br>
@@ -273,21 +353,22 @@
     </div>
 
     <!-- ══ AZAN BAR ══ -->
-    <div class="azan-bar" id="azan-bar">
-        <div style="font-size:2.4rem">🕌</div>
+    <div class="azan-bar" id="azan-bar" role="status" aria-live="polite">
+        <div style="font-size:2.4rem" aria-hidden="true">🕌</div>
         <div class="azan-bar-info">
             <div class="azan-bar-title" id="azan-bar-title">حان وقت الصلاة</div>
             <div class="azan-bar-sub" id="azan-bar-sub">لا تنسَ الدعاء ليوسف بعد الصلاة 🤍</div>
         </div>
-        <button class="azan-ctrl-btn" id="azan-play-pause" onclick="toggleAzanPlayback()">⏸</button>
-        <button class="azan-close" onclick="closeAzanBar()">✕</button>
-        <div class="azan-progress">
+        <button class="azan-ctrl-btn" id="azan-play-pause" onclick="toggleAzanPlayback()"
+            aria-label="تشغيل/إيقاف الأذان">⏸</button>
+        <button class="azan-close" onclick="closeAzanBar()" aria-label="إغلاق شريط الأذان">✕</button>
+        <div class="azan-progress" aria-hidden="true">
             <div class="azan-progress-fill" id="azan-progress-fill"></div>
         </div>
     </div>
 
     <!-- ══ TOAST ══ -->
-    <div class="toast" id="toast"></div>
+    <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
 
     <script src="script.js" defer></script>
 </body>
