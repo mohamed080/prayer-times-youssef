@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مواقيت الصلاة — صدقة جارية عن روح يوسف</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Amiri:wght@400;700&display=swap"
+        rel="stylesheet">
+    <!-- Style -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ══ MEMORIAL RIBBON ══ -->
+    <div class="memorial-ribbon">
+        <span class="ribbon-dot">🤍</span>
+        <div class="ribbon-text">
+            هذا الموقع صدقة جارية على روح <strong style="color:var(--gold-light)">يوسف محمد عبدالله</strong>
+            &nbsp;—&nbsp; اللهم اغفر له وارحمه وأسكنه فسيح جناتك
+        </div>
+        <span class="ribbon-dot">🤍</span>
+    </div>
+
+    <!-- ══ HERO ══ -->
+    <section class="hero">
+        <div class="top-bar">
+            <button class="top-btn" id="dark-toggle" onclick="toggleDark()">🌙</button>
+            <div class="top-btn-group">
+                <button class="top-btn" id="notif-top-btn" onclick="toggleNotifications()">🔕</button>
+                <button class="top-btn" id="sound-top-btn" onclick="toggleSound()">🔇</button>
+            </div>
+        </div>
+        <span class="hero-icon">🕌</span>
+        <h1>مواقيت الصلاة</h1>
+        <p class="tagline">اعرف مواعيد الصلاة اليومية بسهولة</p>
+        <div class="gold-divider"><span></span><i>✦</i><span></span></div>
+        <div class="date-row">
+            <div class="date-badge" id="gregorian-date">جاري التحميل…</div>
+            <div class="date-badge" id="hijri-date"></div>
+        </div>
+        <div class="mosque-strip"></div>
+    </section>
+
+    <!-- ══ MEMORIAL CARD ══ -->
+    <div class="memorial-wrapper">
+        <div class="memorial-card">
+            <div class="memorial-name">يوسف محمد عبدالله</div>
+            <div class="memorial-dates">
+                <span>🌿</span>
+                <span style="color:var(--text-mid)">انتقل إلى رحمة الله</span>
+                <span>12 مايو 2025</span>
+                <!-- <span>عمره 18 عاماً</span> -->
+                <span>🌿</span>
+            </div>
+            <div class="memorial-quran">
+                ﴿ إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ ﴾
+                <div class="memorial-quran-ref">سورة البقرة — الآية 156</div>
+            </div>
+            <button class="memorial-dua-btn" onclick="openDua()">
+                🤲 &nbsp; ادعُ لروح يوسف
+            </button>
+        </div>
+    </div>
+
+    <!-- ══ COUNTDOWN ══ -->
+    <div class="countdown-wrapper">
+        <div class="countdown-card">
+            <div>
+                <div class="countdown-label">الصلاة القادمة</div>
+                <div class="countdown-prayer-name" id="next-prayer-name">جاري التحميل…</div>
+            </div>
+            <div class="countdown-timer" id="countdown-display">--:--:--</div>
+        </div>
+    </div>
+
+    <!-- ══ CONTROLS ══ -->
+    <div class="controls-row">
+        <div class="selector-card">
+            <div class="selector-icon">📍</div>
+            <div style="flex:1">
+                <div class="selector-label">اختر مدينتك</div>
+                <select class="city-select" id="city-select" onchange="loadPrayers()">
+                    <optgroup label="مصر">
+                        <option value="Cairo" data-country="EG">القاهرة</option>
+                        <option value="Alexandria" data-country="EG">الإسكندرية</option>
+                        <option value="Giza" data-country="EG">الجيزة</option>
+                        <option value="Mansoura" data-country="EG" selected>المنصورة</option>
+                        <option value="Tanta" data-country="EG">طنطا</option>
+                        <option value="Assiut" data-country="EG">أسيوط</option>
+                        <option value="Luxor" data-country="EG">الأقصر</option>
+                        <option value="Aswan" data-country="EG">أسوان</option>
+                        <option value="Port Said" data-country="EG">بورسعيد</option>
+                        <option value="Suez" data-country="EG">السويس</option>
+                    </optgroup>
+                    <optgroup label="السعودية">
+                        <option value="Mecca" data-country="SA">مكة المكرمة</option>
+                        <option value="Medina" data-country="SA">المدينة المنورة</option>
+                        <option value="Riyadh" data-country="SA">الرياض</option>
+                        <option value="Jeddah" data-country="SA">جدة</option>
+                        <option value="Dammam" data-country="SA">الدمام</option>
+                    </optgroup>
+                    <optgroup label="الإمارات">
+                        <option value="Dubai" data-country="AE">دبي</option>
+                        <option value="Abu Dhabi" data-country="AE">أبوظبي</option>
+                    </optgroup>
+                    <optgroup label="الكويت">
+                        <option value="Kuwait City" data-country="KW">الكويت</option>
+                    </optgroup>
+                    <optgroup label="قطر">
+                        <option value="Doha" data-country="QA">الدوحة</option>
+                    </optgroup>
+                    <optgroup label="الأردن">
+                        <option value="Amman" data-country="JO">عمان</option>
+                    </optgroup>
+                    <optgroup label="المغرب">
+                        <option value="Casablanca" data-country="MA">الدار البيضاء</option>
+                        <option value="Rabat" data-country="MA">الرباط</option>
+                    </optgroup>
+                    <optgroup label="تركيا">
+                        <option value="Istanbul" data-country="TR">إسطنبول</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="select-arrow">⌄</div>
+        </div>
+        <button class="gps-btn" id="gps-btn" onclick="detectLocation()">
+            <span class="gps-icon">🌐</span>
+            <span id="gps-label">موقعي تلقائياً</span>
+        </button>
+        <div class="feature-btns">
+            <button class="feat-btn" id="notif-btn" onclick="toggleNotifications()">
+                <span class="feat-icon">🔔</span><span>إشعارات</span>
+            </button>
+            <button class="feat-btn" id="sound-btn" onclick="toggleSound()">
+                <span class="feat-icon">🔇</span><span>أذان</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ══ PRAYER CARDS ══ -->
+    <div class="cards-section">
+        <div class="prayer-card" id="card-fajr">
+            <div class="card-icon-wrap">🌙</div>
+            <div class="card-info">
+                <div class="prayer-name">الفجر <span class="next-badge">التالية</span></div>
+                <div class="prayer-time-val" id="fajr"><span class="skeleton"></span></div>
+                <div class="card-countdown" id="cc-fajr"></div>
+                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+            </div>
+        </div>
+        <div class="prayer-card" id="card-sunrise">
+            <div class="card-icon-wrap">🌅</div>
+            <div class="card-info">
+                <div class="prayer-name">الشروق <span class="next-badge">التالية</span></div>
+                <div class="prayer-time-val" id="sunrise"><span class="skeleton"></span></div>
+                <div class="card-countdown" id="cc-sunrise"></div>
+                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+            </div>
+        </div>
+        <div class="prayer-card" id="card-dhuhr">
+            <div class="card-icon-wrap">☀️</div>
+            <div class="card-info">
+                <div class="prayer-name">الظهر <span class="next-badge">التالية</span></div>
+                <div class="prayer-time-val" id="dhuhr"><span class="skeleton"></span></div>
+                <div class="card-countdown" id="cc-dhuhr"></div>
+                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+            </div>
+        </div>
+        <div class="prayer-card" id="card-asr">
+            <div class="card-icon-wrap">🌤️</div>
+            <div class="card-info">
+                <div class="prayer-name">العصر <span class="next-badge">التالية</span></div>
+                <div class="prayer-time-val" id="asr"><span class="skeleton"></span></div>
+                <div class="card-countdown" id="cc-asr"></div>
+                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+            </div>
+        </div>
+        <div class="prayer-card" id="card-maghrib">
+            <div class="card-icon-wrap">🌇</div>
+            <div class="card-info">
+                <div class="prayer-name">المغرب <span class="next-badge">التالية</span></div>
+                <div class="prayer-time-val" id="maghrib"><span class="skeleton"></span></div>
+                <div class="card-countdown" id="cc-maghrib"></div>
+                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+            </div>
+        </div>
+        <div class="prayer-card" id="card-isha">
+            <div class="card-icon-wrap">🌌</div>
+            <div class="card-info">
+                <div class="prayer-name">العشاء <span class="next-badge">التالية</span></div>
+                <div class="prayer-time-val" id="isha"><span class="skeleton"></span></div>
+                <div class="card-countdown" id="cc-isha"></div>
+                <div class="remind-dua">🤲 لا تنسَ الدعاء ليوسف بعد الصلاة</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ TASBEEH ══ -->
+    <div class="tasbeeh-wrapper">
+        <div class="tasbeeh-card">
+            <div class="tasbeeh-title">📿 سبحة إلكترونية — أهدِ الثواب ليوسف</div>
+            <div class="tasbeeh-phrase-row">
+                <button class="phrase-btn active" onclick="setPhrase(this,'سبحان الله')">سبحان الله</button>
+                <button class="phrase-btn" onclick="setPhrase(this,'الحمد لله')">الحمد لله</button>
+                <button class="phrase-btn" onclick="setPhrase(this,'الله أكبر')">الله أكبر</button>
+                <button class="phrase-btn" onclick="setPhrase(this,'لا إله إلا الله')">لا إله إلا الله</button>
+                <button class="phrase-btn" onclick="setPhrase(this,'أستغفر الله')">أستغفر الله</button>
+            </div>
+            <div class="tasbeeh-phrase-display" id="tasbeeh-phrase">سبحان الله</div>
+            <div class="tasbeeh-counter-wrap">
+                <div class="tasbeeh-circle" onclick="incrementTasbeeh()">
+                    <div class="tasbeeh-num" id="tasbeeh-count">0</div>
+                    <div class="tasbeeh-tap">اضغط</div>
+                </div>
+            </div>
+            <div class="tasbeeh-total" id="tasbeeh-total">المجموع الكلي: 0</div>
+            <br>
+            <button class="tasbeeh-reset" onclick="resetTasbeeh()">↺ إعادة تعيين</button>
+        </div>
+    </div>
+
+    <!-- ══ DEDICATION ══ -->
+    <div class="dedication-section">
+        <div class="dedication-card">
+            <span class="dedication-star">🌙</span>
+            <div class="dedication-text">
+                إلى روح <span class="dedication-name">يوسف محمد عبدالله</span><br>
+                الشاب الذي رحل في ريعان شبابه عن عمر 18 عاماً<br>
+                <span style="font-size:1.7rem;opacity:.8">
+                    اللهم اجعل هذا الموقع في ميزان حسناته<br>
+                    وكل من استفاد به صدقةً جاريةً تبلغه نورها في قبره
+                </span>
+            </div>
+            <div class="dedication-sub">
+                ﴿ وَلَا تَحْسَبَنَّ الَّذِينَ قُتِلُوا فِي سَبِيلِ اللَّهِ أَمْوَاتًا ۚ بَلْ أَحْيَاءٌ عِندَ رَبِّهِمْ
+                يُرْزَقُونَ ﴾
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        صُنع بـ 🤍 إهداءً لروح يوسف محمد عبدالله<br>
+        البيانات من Aladhan API • كل دعاء تدعو به له صدقةٌ جارية
+    </footer>
+
+    <!-- ══ DUA POPUP ══ -->
+    <div class="popup-overlay" id="dua-popup" onclick="closeDua(event)">
+        <div class="popup-box">
+            <button class="popup-close" onclick="closeDuaBtn()">✕</button>
+            <span class="popup-icon">🤲</span>
+            <div class="popup-title">دعاء للمتوفى</div>
+            <div class="popup-dua">
+                اللهم اغفر ليوسف وارحمه وعافِه واعفُ عنه،<br>
+                وأكرم نُزُله ووسّع مُدخله،<br>
+                واغسله بالماء والثلج والبَرَد،<br>
+                ونقِّه من الخطايا كما يُنقَّى الثوب الأبيض من الدنَس،<br>
+                وأبدله داراً خيراً من داره، وأهلاً خيراً من أهله،<br>
+                وأدخله الجنة، وأعذه من عذاب القبر ومن عذاب النار.
+                <br><br>
+                <span style="font-size:1.7rem">آمين يا رب العالمين 🤲</span>
+            </div>
+            <div class="popup-note">
+                قراءة هذا الدعاء بنية الإهداء ليوسف صدقةٌ جارية تصله إن شاء الله 🌿<br>
+                <strong style="color:var(--green-mid)">لا تنسَ الدعاء له بعد كل صلاة</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ AZAN BAR ══ -->
+    <div class="azan-bar" id="azan-bar">
+        <div style="font-size:2.4rem">🕌</div>
+        <div class="azan-bar-info">
+            <div class="azan-bar-title" id="azan-bar-title">حان وقت الصلاة</div>
+            <div class="azan-bar-sub" id="azan-bar-sub">لا تنسَ الدعاء ليوسف بعد الصلاة 🤍</div>
+        </div>
+        <button class="azan-ctrl-btn" id="azan-play-pause" onclick="toggleAzanPlayback()">⏸</button>
+        <button class="azan-close" onclick="closeAzanBar()">✕</button>
+        <div class="azan-progress">
+            <div class="azan-progress-fill" id="azan-progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- ══ TOAST ══ -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js" defer></script>
+</body>
+
+</html>
